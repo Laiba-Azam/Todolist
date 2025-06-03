@@ -20,7 +20,7 @@ jobs:
         
     - name: Copy code to VM1
       run: |
-        scp -o StrictHostKeyChecking=no -r . ${{ secrets.VM1_USER }}@${{ secrets.VM1_HOST }}:/tmp/website-code
+        scp -o StrictHostKeyChecking=no -r . ${{ secrets.VM1_USER }}@${{ secrets.VM1_HOST }}:/home/vm1/s3_upload/
         
     - name: Execute Terraform on VM1
       run: |
