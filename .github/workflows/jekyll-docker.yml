@@ -1,0 +1,35 @@
+name: Remote Terraform Deploy
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Install SSH key
+      uses: webfactory/ssh-agent@v0.7.0
+      with:
+        ssh-private-key: ${{ secrets.VM1_SSH_KEY }}
+        
+    - name: Copy code to VM1
+      run: |
+        scp -o StrictHostKeyChecking=no -r . ${{ secrets.VM1_USER }}@${{ secrets.VM1_HOST }}:/tmp/website-code
+        
+    - name: Execute Terraform on VM1
+      run: |
+        ssh -o StrictHostKeyChecking=no ${{ secrets.VM1_USER }}@${{ secrets.VM1_HOST }} << 'EOF'
+        cd /home/vm1/s3_upload/
+        terraform init
+        terraform validate
+        terraform plan
+        if [ "$GITHUB_EVENT_NAME" = "push" ]; then
+          terraform apply -auto-approve
+        fi
+        EOF
