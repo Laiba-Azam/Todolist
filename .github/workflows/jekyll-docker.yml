@@ -23,12 +23,12 @@ jobs:
       run: ssh -i ~/.ssh/id_ed25519 -o StrictHostKeyChecking=no ${{ secrets.VM1_USER }}@${{ secrets.VM1_HOST }} "echo 'SSH connection successful!'"
       
     - name: Copy Files to VM1
-      run: scp -i ~/.ssh/id_ed25519 -o StrictHostKeyChecking=no -r . ${{ secrets.VM1_USER }}@${{ secrets.VM1_HOST }}:/tmp/website-code
+      run: scp -i ~/.ssh/id_ed25519 -o StrictHostKeyChecking=no -r . ${{ secrets.VM1_USER }}@${{ secrets.VM1_HOST }}:/home/vm1/s3_deoloy
       
     - name: Run Terraform on VM1
       run: |
         ssh -i ~/.ssh/id_ed25519 -o StrictHostKeyChecking=no ${{ secrets.VM1_USER }}@${{ secrets.VM1_HOST }} << 'EOF'
-        cd /tmp/website-code
+        cd /home/vm1/s3_deoloy
         terraform init
         terraform validate
         terraform plan
