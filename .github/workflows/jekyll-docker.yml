@@ -1,38 +1,32 @@
-name: Remote Terraform Deploy
+name: Auto-Deploy to S3
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
 
 jobs:
   deploy:
-    runs-on: self-hosted
+    runs-on: self-hosted  # Uses your VM1 runner
     
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
-      
-    - name: Setup SSH
+    - name: Pull Site Files
+      run: | 
+        git clone https://github.com/Laiba-Azam/Todolist.git /tmp/site-files
+        cp -r /tmp/site-files/* .
+    - name: Terraform Apply
       run: |
-        mkdir -p ~/.ssh
-        echo "${{ secrets.VM1_SSH_KEY }}" > ~/.ssh/id_ed25519
-        chmod 600 ~/.ssh/id_ed25519
-        ssh-keyscan ${{ secrets.VM1_HOST }} >> ~/.ssh/known_hosts
-        
-    - name: Test Connection
-      run: ssh -i ~/.ssh/id_ed25519 -o StrictHostKeyChecking=no ${{ secrets.VM1_USER }}@${{ secrets.VM1_HOST }} "echo 'SSH connection successful!'"
-      
-    - name: Copy Files to VM1
-      run: scp -i ~/.ssh/id_ed25519 -o StrictHostKeyChecking=no -r . ${{ secrets.VM1_USER }}@${{ secrets.VM1_HOST }}:/home/vm1/s3_deoloy
-      
-    - name: Run Terraform on VM1
-      run: |
-        ssh -i ~/.ssh/id_ed25519 -o StrictHostKeyChecking=no ${{ secrets.VM1_USER }}@${{ secrets.VM1_HOST }} << 'EOF'
         cd /home/vm1/s3_deoloy
         terraform init
-        terraform validate
-        terraform plan
-        if [ "$GITHUB_EVENT_NAME" = "push" ]; then
-          terraform apply -auto-approve
-        fi
-        EOF
+        terraform apply -auto-approve
+
+    - name: Sync Site Files
+      run: |
+        cd /home/vm1/s3_deoloy
+        export BUCKET_NAME=$(terraform output -raw todolist)
+        aws s3 sync ../ s3://$BUCKET_NAME \
+          --exclude ".git/*" \
+          --exclude ".github/*" \
+          --exclude "/home/vm1/s3_deoloy/*" \
+          --delete
