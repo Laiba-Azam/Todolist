@@ -17,7 +17,7 @@ jobs:
         mkdir -p ~/.ssh
         echo "${{ secrets.VM1_SSH_KEY }}" > ~/.ssh/id_ed25519
         chmod 600 ~/.ssh/id_ed25519
-        echo "${{ secrets.VM1_HOST }} ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAII3sBvLV26fUjpt0TkXawA7qxXBAn5dY8kq176jByZV9" >> ~/.ssh/known_hosts
+        ssh-keyscan ${{ secrets.VM1_HOST }} >> ~/.ssh/known_hosts
         
     - name: Test Connection
       run: ssh -i ~/.ssh/id_ed25519 -o StrictHostKeyChecking=no ${{ secrets.VM1_USER }}@${{ secrets.VM1_HOST }} "echo 'SSH connection successful!'"
