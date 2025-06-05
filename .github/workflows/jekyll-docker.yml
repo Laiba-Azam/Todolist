@@ -15,7 +15,7 @@ jobs:
     - name: Terraform Apply
       run: |
         cd /home/vm1/s3_deoloy
-        terraform init -reconfigure
+        terraform init 
         terraform apply -auto-approve
         
     - name: Sync to S3
