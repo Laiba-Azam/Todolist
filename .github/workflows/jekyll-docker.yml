@@ -13,7 +13,7 @@ jobs:
       uses: actions/checkout@v4
     - name: Pull Site Files
       run: | 
-        git clone https://github.com/Laiba-Azam/Todolist.git /tmp/site-files/
+        git pull https://github.com/Laiba-Azam/Todolist.git /tmp/site-files/
         cp -r /tmp/site-files/* .
     - name: Terraform Apply
       run: |
