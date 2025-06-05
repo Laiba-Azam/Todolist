@@ -21,7 +21,7 @@ jobs:
     - name: Sync to S3
       run: |
         cd /home/vm1/s3_deoloy
-        export BUCKET_NAME=$(terraform output -raw todolist)
+        export BUCKET_NAME=$(terraform output -raw bucket_name)
         aws s3 sync $GITHUB_WORKSPACE/ s3://$BUCKET_NAME \
           --exclude ".git/*" \
           --exclude ".github/*" \
