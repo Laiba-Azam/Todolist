@@ -6,28 +6,23 @@ on:
 
 jobs:
   deploy:
-    runs-on: self-hosted  # Uses your VM1 runner
+    runs-on: self-hosted
     
     steps:
-    - name: Checkout code
+    - name: Checkout and prepare code
       uses: actions/checkout@v4
-    - name: Pull Site Files
-      run: | 
-        cd /tmp/site-files/
-        git pull 
-        cp -r /tmp/site-files/* .
+      
     - name: Terraform Apply
       run: |
         cd /home/vm1/s3_deoloy
         terraform init -reconfigure
         terraform apply -auto-approve
-
-    - name: Sync Site Files
+        
+    - name: Sync to S3
       run: |
         cd /home/vm1/s3_deoloy
         export BUCKET_NAME=$(terraform output -raw todolist)
-        aws s3 sync ../ s3://$BUCKET_NAME \
+        aws s3 sync $GITHUB_WORKSPACE/ s3://$BUCKET_NAME \
           --exclude ".git/*" \
           --exclude ".github/*" \
-          --exclude "/home/vm1/s3_deoloy/*" \
           --delete
