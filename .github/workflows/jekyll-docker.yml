@@ -14,7 +14,7 @@ jobs:
     - name: Pull Site Files
       run: | 
         cd /tmp/site-files/
-        git pull https://github.com/Laiba-Azam/Todolist.git 
+        git pull 
         cp -r /tmp/site-files/* .
     - name: Terraform Apply
       run: |
