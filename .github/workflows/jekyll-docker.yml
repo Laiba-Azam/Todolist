@@ -18,7 +18,7 @@ jobs:
     - name: Terraform Apply
       run: |
         cd /home/vm1/s3_deoloy
-        terraform init
+        terraform init -migrate-state
         terraform apply -auto-approve
 
     - name: Sync Site Files
