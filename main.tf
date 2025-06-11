@@ -1,7 +1,26 @@
+terraform {
+  backend "s3" {
+    bucket         = "terraform-backend-me"  # Create this bucket first
+    key            = "todolist/terraform.tfstate"
+    region         = "us-east-1"
+    dynamodb_table = "terraform-lock-table"
+    encrypt        = true
+  }
+
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = "~> 5.0"
+    }
+  }
+}
+
 provider "aws" {
   region = "us-east-1"
 }
 
+
+# Your existing website resources
 resource "random_id" "unique" {
   byte_length = 4
 }
@@ -19,15 +38,12 @@ resource "aws_s3_bucket_website_configuration" "site" {
 
 resource "aws_s3_bucket_public_access_block" "disable_bpa" {
   bucket = aws_s3_bucket.site.id
-
-  # Disable all Block Public Access settings
   block_public_acls       = false
   block_public_policy     = false
   ignore_public_acls      = false
   restrict_public_buckets = false
 }
 
-# Ensure the policy depends on BPA being disabled
 resource "aws_s3_bucket_policy" "public_read" {
   bucket = aws_s3_bucket.site.id
   policy = jsonencode({
@@ -41,7 +57,7 @@ resource "aws_s3_bucket_policy" "public_read" {
       }
     ]
   })
-  depends_on = [aws_s3_bucket_public_access_block.disable_bpa]  # Critical!
+  depends_on = [aws_s3_bucket_public_access_block.disable_bpa]
 }
 
 output "bucket_name" {
