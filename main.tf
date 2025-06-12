@@ -1,6 +1,6 @@
 terraform {
   backend "s3" {
-    bucket         = "terraform-backend-me"  # Create this bucket first
+    bucket         = "terraform-backend-me"  
     key            = "todolist/terraform.tfstate"
     region         = "us-east-1"
     dynamodb_table = "terraform-lock-table"
